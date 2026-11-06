@@ -1,0 +1,1530 @@
+--[[\
+	KeithLineHub - Premium Development & Testing GUI (v18.0)
+	Created for Roblox Studio
+	Features: No-Humanoid AntiCheat Bypass, Stable FOV Protection, Door Highlighter, Auto Opener, Cleaned Speed System.
+--]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local camera = Workspace.CurrentCamera
+
+-- Удаляем старую копию GUI при перезапуске
+if playerGui:FindFirstChild("KeithLineHubGui") then
+	playerGui.KeithLineHubGui:Destroy()
+end
+
+-- ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "KeithLineHubGui"
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = playerGui
+
+-- Главное окно
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 780, 0, 600)
+mainFrame.Position = UDim2.new(0.5, -390, 0.5, -300)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+mainFrame.BorderSizePixel = 0
+mainFrame.ClipsDescendants = true
+mainFrame.Visible = false
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 12)
+mainCorner.Parent = mainFrame
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(123, 44, 191)
+mainStroke.Thickness = 1.5
+mainStroke.Transparency = 0.3
+mainStroke.Parent = mainFrame
+
+local strokeGradient = Instance.new("UIGradient")
+strokeGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(123, 44, 191)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(58, 134, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(123, 44, 191))
+})
+strokeGradient.Parent = mainStroke
+
+-- Верхняя шапка (Header)
+local topBar = Instance.new("Frame")
+topBar.Name = "TopBar"
+topBar.Size = UDim2.new(1, 0, 0, 45)
+topBar.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+topBar.BackgroundTransparency = 0.5
+topBar.BorderSizePixel = 0
+topBar.Parent = mainFrame
+
+local topBarCorner = Instance.new("UICorner")
+topBarCorner.CornerRadius = UDim.new(0, 12)
+topBarCorner.Parent = topBar
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0, 220, 1, 0)
+titleLabel.Position = UDim2.new(0, 15, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.Text = "KEITH<font color='#3A86FF'>LINE</font> HUB"
+titleLabel.RichText = true
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 16
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = topBar
+
+local subtitleLabel = Instance.new("TextLabel")
+subtitleLabel.Size = UDim2.new(0, 150, 1, 0)
+subtitleLabel.Position = UDim2.new(0, 145, 0, 1)
+subtitleLabel.BackgroundTransparency = 1
+subtitleLabel.Font = Enum.Font.GothamMedium
+subtitleLabel.Text = "v18.0 Studio"
+subtitleLabel.TextColor3 = Color3.fromRGB(130, 130, 150)
+subtitleLabel.TextSize = 11
+subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+subtitleLabel.Parent = topBar
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -38, 0.5, -15)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 75, 75)
+closeButton.BackgroundTransparency = 0.8
+closeButton.Font = Enum.Font.GothamBold
+closeButton.Text = "✕"
+closeButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+closeButton.TextSize = 14
+closeButton.Parent = topBar
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 6)
+closeCorner.Parent = closeButton
+
+local isOpen = false
+local toggleGUI
+
+closeButton.MouseButton1Click:Connect(function()
+	if isOpen then
+		toggleGUI()
+	end
+end)
+
+-- Player Info Bar
+local playerInfoBar = Instance.new("Frame")
+playerInfoBar.Name = "PlayerInfoBar"
+playerInfoBar.Size = UDim2.new(1, -30, 0, 55)
+playerInfoBar.Position = UDim2.new(0, 15, 0, 52)
+playerInfoBar.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+playerInfoBar.BorderSizePixel = 0
+playerInfoBar.Parent = mainFrame
+
+local pibCorner = Instance.new("UICorner")
+pibCorner.CornerRadius = UDim.new(0, 8)
+pibCorner.Parent = playerInfoBar
+
+local avatarImage = Instance.new("ImageLabel")
+avatarImage.Size = UDim2.new(0, 40, 0, 40)
+avatarImage.Position = UDim2.new(0, 8, 0.5, -20)
+avatarImage.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+avatarImage.BorderSizePixel = 0
+avatarImage.Parent = playerInfoBar
+
+local aiCorner = Instance.new("UICorner")
+aiCorner.CornerRadius = UDim.new(0, 6)
+aiCorner.Parent = avatarImage
+
+task.spawn(function()
+	local success, content = pcall(function()
+		return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+	end)
+	if success then avatarImage.Image = content end
+end)
+
+local displayNameLbl = Instance.new("TextLabel")
+displayNameLbl.Size = UDim2.new(1, -60, 0, 20)
+displayNameLbl.Position = UDim2.new(0, 55, 0, 8)
+displayNameLbl.BackgroundTransparency = 1
+displayNameLbl.Font = Enum.Font.GothamBold
+displayNameLbl.Text = player.DisplayName
+displayNameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+displayNameLbl.TextSize = 13
+displayNameLbl.TextXAlignment = Enum.TextXAlignment.Left
+displayNameLbl.Parent = playerInfoBar
+
+local detailsLbl = Instance.new("TextLabel")
+detailsLbl.Size = UDim2.new(1, -60, 0, 18)
+detailsLbl.Position = UDim2.new(0, 55, 0, 28)
+detailsLbl.BackgroundTransparency = 1
+detailsLbl.Font = Enum.Font.Gotham
+detailsLbl.Text = "@" .. player.Name .. "  •  ID: " .. tostring(player.UserId)
+detailsLbl.TextColor3 = Color3.fromRGB(150, 150, 175)
+detailsLbl.TextSize = 11
+detailsLbl.TextXAlignment = Enum.TextXAlignment.Left
+detailsLbl.Parent = playerInfoBar
+
+-- Sidebar
+local sidebar = Instance.new("Frame")
+sidebar.Name = "Sidebar"
+sidebar.Size = UDim2.new(0, 160, 1, -118)
+sidebar.Position = UDim2.new(0, 0, 0, 118)
+sidebar.BackgroundColor3 = Color3.fromRGB(18, 18, 26)
+sidebar.BorderSizePixel = 0
+sidebar.Parent = mainFrame
+
+local sidebarLayout = Instance.new("UIListLayout")
+sidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+sidebarLayout.Padding = UDim.new(0, 6)
+sidebarLayout.Parent = sidebar
+
+local sidebarPadding = Instance.new("UIPadding")
+sidebarPadding.PaddingTop = UDim.new(0, 10)
+sidebarPadding.PaddingLeft = UDim.new(0, 10)
+sidebarPadding.PaddingRight = UDim.new(0, 10)
+sidebarPadding.Parent = sidebar
+
+-- Content Container
+local contentContainer = Instance.new("Frame")
+contentContainer.Name = "ContentContainer"
+contentContainer.Size = UDim2.new(1, -160, 1, -118)
+contentContainer.Position = UDim2.new(0, 160, 0, 118)
+contentContainer.BackgroundTransparency = 1
+contentContainer.Parent = mainFrame
+
+-- Toast Notification System
+local notificationHolder = Instance.new("Frame")
+notificationHolder.Size = UDim2.new(0, 280, 1, 0)
+notificationHolder.Position = UDim2.new(1, -295, 0, 0)
+notificationHolder.BackgroundTransparency = 1
+notificationHolder.Parent = screenGui
+
+local notifLayout = Instance.new("UIListLayout")
+notifLayout.SortOrder = Enum.SortOrder.LayoutOrder
+notifLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+notifLayout.Padding = UDim.new(0, 10)
+notifLayout.Parent = notificationHolder
+
+local notifPadding = Instance.new("UIPadding")
+notifPadding.PaddingBottom = UDim.new(0, 20)
+notifPadding.Parent = notificationHolder
+
+local function sendNotification(title, text, duration)
+	duration = duration or 3
+	local notif = Instance.new("Frame")
+	notif.Size = UDim2.new(1, 0, 0, 65)
+	notif.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+	notif.BackgroundTransparency = 0.1
+	notif.BorderSizePixel = 0
+	notif.Position = UDim2.new(1, 50, 0, 0)
+	notif.Parent = notificationHolder
+	
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = notif
+	
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(58, 134, 255)
+	stroke.Transparency = 0.5
+	stroke.Parent = notif
+	
+	local titleLbl = Instance.new("TextLabel")
+	titleLbl.Size = UDim2.new(1, -20, 0, 22)
+	titleLbl.Position = UDim2.new(0, 12, 0, 8)
+	titleLbl.BackgroundTransparency = 1
+	titleLbl.Font = Enum.Font.GothamBold
+	titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleLbl.TextSize = 13
+	titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+	titleLbl.Text = title
+	titleLbl.Parent = notif
+	
+	local descLbl = Instance.new("TextLabel")
+	descLbl.Size = UDim2.new(1, -20, 0, 25)
+	descLbl.Position = UDim2.new(0, 12, 0, 30)
+	descLbl.BackgroundTransparency = 1
+	descLbl.Font = Enum.Font.Gotham
+	descLbl.TextColor3 = Color3.fromRGB(170, 170, 190)
+	descLbl.TextSize = 11
+	descLbl.TextXAlignment = Enum.TextXAlignment.Left
+	descLbl.Text = text
+	descLbl.Parent = notif
+	
+	TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 0, 0)}):Play()
+	task.delay(duration, function()
+		if notif and notif.Parent then
+			local tweenOut = TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, 50, 0, 0), BackgroundTransparency = 1})
+			tweenOut:Play()
+			tweenOut.Completed:Connect(function() notif:Destroy() end)
+		end
+	end)
+end
+
+-- Window Dragging Logic
+local dragging, dragInput, dragStart, startPos
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then dragging = false end
+		end)
+	end
+end)
+topBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
+end)
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+-- Tabs Manager
+local tabs = {}
+local function createTab(name, layoutOrder)
+	local tabBtn = Instance.new("TextButton")
+	tabBtn.Size = UDim2.new(1, 0, 0, 36)
+	tabBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 38)
+	tabBtn.BackgroundTransparency = 1
+	tabBtn.Font = Enum.Font.GothamMedium
+	tabBtn.Text = "  " .. name
+	tabBtn.TextColor3 = Color3.fromRGB(140, 140, 165)
+	tabBtn.TextSize = 13
+	tabBtn.TextXAlignment = Enum.TextXAlignment.Left
+	tabBtn.LayoutOrder = layoutOrder
+	tabBtn.Parent = sidebar
+	
+	local btnCorner = Instance.new("UICorner")
+	btnCorner.CornerRadius = UDim.new(0, 8)
+	btnCorner.Parent = tabBtn
+	
+	local tabContent = Instance.new("ScrollingFrame")
+	tabContent.Size = UDim2.new(1, 0, 1, 0)
+	tabContent.BackgroundTransparency = 1
+	tabContent.BorderSizePixel = 0
+	tabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+	tabContent.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	tabContent.ScrollBarThickness = 4
+	tabContent.ScrollBarImageColor3 = Color3.fromRGB(123, 44, 191)
+	tabContent.Visible = false
+	tabContent.Parent = contentContainer
+	
+	local contentLayout = Instance.new("UIListLayout")
+	contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	contentLayout.Padding = UDim.new(0, 12)
+	contentLayout.Parent = tabContent
+	
+	local contentPadding = Instance.new("UIPadding")
+	contentPadding.PaddingTop = UDim.new(0, 16)
+	contentPadding.PaddingLeft = UDim.new(0, 16)
+	contentPadding.PaddingRight = UDim.new(0, 16)
+	contentPadding.PaddingBottom = UDim.new(0, 16)
+	contentPadding.Parent = tabContent
+	
+	tabBtn.MouseButton1Click:Connect(function()
+		for _, t in pairs(tabs) do
+			TweenService:Create(t.Btn, TweenInfo.new(0.2), {BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(140, 140, 165)}):Play()
+			t.Content.Visible = false
+		end
+		TweenService:Create(tabBtn, TweenInfo.new(0.2), {BackgroundTransparency = 0, TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+		tabBtn.BackgroundColor3 = Color3.fromRGB(30, 25, 45)
+		tabContent.Visible = true
+	end)
+	
+	if #tabs == 0 then
+		tabBtn.BackgroundTransparency = 0
+		tabBtn.BackgroundColor3 = Color3.fromRGB(30, 25, 45)
+		tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		tabContent.Visible = true
+	end
+	
+	table.insert(tabs, {Btn = tabBtn, Content = tabContent})
+	return tabContent
+end
+
+-- ==========================================
+-- ВКЛАДКА 1: Dashboard
+-- ==========================================
+local dashTab = createTab("Dashboard", 1)
+
+local welcomeCard = Instance.new("Frame")
+welcomeCard.Size = UDim2.new(1, 0, 0, 95)
+welcomeCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+welcomeCard.BorderSizePixel = 0
+welcomeCard.Parent = dashTab
+
+local wcCorner = Instance.new("UICorner")
+wcCorner.CornerRadius = UDim.new(0, 8)
+wcCorner.Parent = welcomeCard
+
+local wcTitle = Instance.new("TextLabel")
+wcTitle.Size = UDim2.new(1, -30, 0, 30)
+wcTitle.Position = UDim2.new(0, 15, 0, 12)
+wcTitle.BackgroundTransparency = 1
+wcTitle.Font = Enum.Font.GothamBold
+wcTitle.Text = "Welcome to KeithLineHub v18.0"
+wcTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+wcTitle.TextSize = 15
+wcTitle.TextXAlignment = Enum.TextXAlignment.Left
+wcTitle.Parent = welcomeCard
+
+local wcDesc = Instance.new("TextLabel")
+wcDesc.Size = UDim2.new(1, -30, 0, 40)
+wcDesc.Position = UDim2.new(0, 15, 0, 42)
+wcDesc.BackgroundTransparency = 1
+wcDesc.Font = Enum.Font.Gotham
+wcDesc.Text = "SpeedHack completely removed. Features: AntiCheat Bypass, Stable FOV Protection, Door Highlighter & Auto Opener. Hotkey: RightShift."
+wcDesc.TextColor3 = Color3.fromRGB(150, 150, 175)
+wcDesc.TextSize = 12
+wcDesc.TextWrapped = true
+wcDesc.TextXAlignment = Enum.TextXAlignment.Left
+wcDesc.Parent = welcomeCard
+
+
+-- ==========================================
+-- ВКЛАДКА 2: AntiCheat Bypass (Только Байпас)
+-- ==========================================
+local bypassTab = createTab("Bypass", 2)
+
+local bypassCard = Instance.new("Frame")
+bypassCard.Size = UDim2.new(1, 0, 0, 110)
+bypassCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+bypassCard.BorderSizePixel = 0
+bypassCard.Parent = bypassTab
+
+local bcCorner = Instance.new("UICorner")
+bcCorner.CornerRadius = UDim.new(0, 8)
+bcCorner.Parent = bypassCard
+
+local bcTitle = Instance.new("TextLabel")
+bcTitle.Size = UDim2.new(1, -30, 0, 25)
+bcTitle.Position = UDim2.new(0, 15, 0, 12)
+bcTitle.BackgroundTransparency = 1
+bcTitle.Font = Enum.Font.GothamBold
+bcTitle.Text = "AntiCheat Bypass (No Humanoid)"
+bcTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+bcTitle.TextSize = 14
+bcTitle.TextXAlignment = Enum.TextXAlignment.Left
+bcTitle.Parent = bypassCard
+
+local bypassToggleFrame = Instance.new("Frame")
+bypassToggleFrame.Size = UDim2.new(1, -30, 0, 40)
+bypassToggleFrame.Position = UDim2.new(0, 15, 0, 42)
+bypassToggleFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+bypassToggleFrame.BorderSizePixel = 0
+bypassToggleFrame.Parent = bypassCard
+
+local btfCorner = Instance.new("UICorner")
+btfCorner.CornerRadius = UDim.new(0, 6)
+btfCorner.Parent = bypassToggleFrame
+
+local bypassToggleLbl = Instance.new("TextLabel")
+bypassToggleLbl.Size = UDim2.new(0, 220, 1, 0)
+bypassToggleLbl.Position = UDim2.new(0, 12, 0, 0)
+bypassToggleLbl.BackgroundTransparency = 1
+bypassToggleLbl.Font = Enum.Font.GothamMedium
+bypassToggleLbl.Text = "Remove Humanoid (Keep Camera)"
+bypassToggleLbl.TextColor3 = Color3.fromRGB(220, 220, 240)
+bypassToggleLbl.TextSize = 12
+bypassToggleLbl.TextXAlignment = Enum.TextXAlignment.Left
+bypassToggleLbl.Parent = bypassToggleFrame
+
+local bypassToggleBtn = Instance.new("TextButton")
+bypassToggleBtn.Size = UDim2.new(0, 60, 0, 24)
+bypassToggleBtn.Position = UDim2.new(1, -72, 0.5, -12)
+bypassToggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+bypassToggleBtn.Font = Enum.Font.GothamBold
+bypassToggleBtn.Text = "OFF"
+bypassToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+bypassToggleBtn.TextSize = 11
+bypassToggleBtn.Parent = bypassToggleFrame
+
+local btbCorner = Instance.new("UICorner")
+btbCorner.CornerRadius = UDim.new(0, 12)
+btbCorner.Parent = bypassToggleBtn
+
+
+-- ==========================================
+-- ВКЛАДКА 3: Automation (Auto Drawer Opener)
+-- ==========================================
+local automationTab = createTab("Automation", 3)
+
+local openerCard = Instance.new("Frame")
+openerCard.Size = UDim2.new(1, 0, 0, 250)
+openerCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+openerCard.BorderSizePixel = 0
+openerCard.Parent = automationTab
+
+local ocCorner = Instance.new("UICorner")
+ocCorner.CornerRadius = UDim.new(0, 8)
+ocCorner.Parent = openerCard
+
+local ocTitle = Instance.new("TextLabel")
+ocTitle.Size = UDim2.new(1, -30, 0, 25)
+ocTitle.Position = UDim2.new(0, 15, 0, 12)
+ocTitle.BackgroundTransparency = 1
+ocTitle.Font = Enum.Font.GothamBold
+ocTitle.Text = "Auto Drawer Opener (Stable)"
+ocTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+ocTitle.TextSize = 14
+ocTitle.TextXAlignment = Enum.TextXAlignment.Left
+ocTitle.Parent = openerCard
+
+local openerToggleFrame = Instance.new("Frame")
+openerToggleFrame.Size = UDim2.new(1, -30, 0, 40)
+openerToggleFrame.Position = UDim2.new(0, 15, 0, 42)
+openerToggleFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+openerToggleFrame.BorderSizePixel = 0
+openerToggleFrame.Parent = openerCard
+
+local otfCorner = Instance.new("UICorner")
+otfCorner.CornerRadius = UDim.new(0, 6)
+otfCorner.Parent = openerToggleFrame
+
+local openerToggleLbl = Instance.new("TextLabel")
+openerToggleLbl.Size = UDim2.new(0, 220, 1, 0)
+openerToggleLbl.Position = UDim2.new(0, 12, 0, 0)
+openerToggleLbl.BackgroundTransparency = 1
+openerToggleLbl.Font = Enum.Font.GothamMedium
+openerToggleLbl.Text = "Auto Open Drawers"
+openerToggleLbl.TextColor3 = Color3.fromRGB(220, 220, 240)
+openerToggleLbl.TextSize = 12
+openerToggleLbl.TextXAlignment = Enum.TextXAlignment.Left
+openerToggleLbl.Parent = openerToggleFrame
+
+local openerToggleBtn = Instance.new("TextButton")
+openerToggleBtn.Size = UDim2.new(0, 60, 0, 24)
+openerToggleBtn.Position = UDim2.new(1, -72, 0.5, -12)
+openerToggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+openerToggleBtn.Font = Enum.Font.GothamBold
+openerToggleBtn.Text = "OFF"
+openerToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+openerToggleBtn.TextSize = 11
+openerToggleBtn.Parent = openerToggleFrame
+
+local otbCorner = Instance.new("UICorner")
+otbCorner.CornerRadius = UDim.new(0, 12)
+otbCorner.Parent = openerToggleBtn
+
+local distanceFrame = Instance.new("Frame")
+distanceFrame.Size = UDim2.new(1, -30, 0, 36)
+distanceFrame.Position = UDim2.new(0, 15, 0, 88)
+distanceFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+distanceFrame.BorderSizePixel = 0
+distanceFrame.Parent = openerCard
+
+local dfCorner = Instance.new("UICorner")
+dfCorner.CornerRadius = UDim.new(0, 6)
+dfCorner.Parent = distanceFrame
+
+local distanceLbl = Instance.new("TextLabel")
+distanceLbl.Size = UDim2.new(0, 200, 1, 0)
+distanceLbl.Position = UDim2.new(0, 12, 0, 0)
+distanceLbl.BackgroundTransparency = 1
+distanceLbl.Font = Enum.Font.GothamMedium
+distanceLbl.Text = "Activation Distance: 8 Studs"
+distanceLbl.TextColor3 = Color3.fromRGB(200, 200, 220)
+distanceLbl.TextSize = 12
+distanceLbl.TextXAlignment = Enum.TextXAlignment.Left
+distanceLbl.Parent = distanceFrame
+
+local statsHolder = Instance.new("Frame")
+statsHolder.Size = UDim2.new(1, -30, 0, 80)
+statsHolder.Position = UDim2.new(0, 15, 0, 132)
+statsHolder.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+statsHolder.BorderSizePixel = 0
+statsHolder.Parent = openerCard
+
+local shCorner = Instance.new("UICorner")
+shCorner.CornerRadius = UDim.new(0, 6)
+shCorner.Parent = statsHolder
+
+local detectedLbl = Instance.new("TextLabel")
+detectedLbl.Size = UDim2.new(1, -20, 0, 20)
+detectedLbl.Position = UDim2.new(0, 12, 0, 6)
+detectedLbl.BackgroundTransparency = 1
+detectedLbl.Font = Enum.Font.GothamMedium
+detectedLbl.Text = "Detected Drawers: 0"
+detectedLbl.TextColor3 = Color3.fromRGB(180, 180, 210)
+detectedLbl.TextSize = 11
+detectedLbl.TextXAlignment = Enum.TextXAlignment.Left
+detectedLbl.Parent = statsHolder
+
+local openedLbl = Instance.new("TextLabel")
+openedLbl.Size = UDim2.new(1, -20, 0, 20)
+openedLbl.Position = UDim2.new(0, 12, 0, 26)
+openedLbl.BackgroundTransparency = 1
+openedLbl.Font = Enum.Font.GothamBold
+openedLbl.Text = "Opened Drawers: 0"
+openedLbl.TextColor3 = Color3.fromRGB(50, 255, 150)
+openedLbl.TextSize = 12
+openedLbl.TextXAlignment = Enum.TextXAlignment.Left
+openedLbl.Parent = statsHolder
+
+local remainingLbl = Instance.new("TextLabel")
+remainingLbl.Size = UDim2.new(1, -20, 0, 20)
+remainingLbl.Position = UDim2.new(0, 12, 0, 46)
+remainingLbl.BackgroundTransparency = 1
+remainingLbl.Font = Enum.Font.GothamMedium
+remainingLbl.Text = "Remaining Drawers: 0"
+remainingLbl.TextColor3 = Color3.fromRGB(255, 200, 50)
+remainingLbl.TextSize = 11
+remainingLbl.TextXAlignment = Enum.TextXAlignment.Left
+remainingLbl.Parent = statsHolder
+
+
+-- ==========================================
+-- ВКЛАДКА 4: Visual Highlighter
+-- ==========================================
+local highlighterTab = createTab("Visual Highlighter", 4)
+
+local highCard = Instance.new("Frame")
+highCard.Size = UDim2.new(1, 0, 0, 260)
+highCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+highCard.BorderSizePixel = 0
+highCard.Parent = highlighterTab
+
+local hcCorner = Instance.new("UICorner")
+hcCorner.CornerRadius = UDim.new(0, 8)
+hcCorner.Parent = highCard
+
+local hcTitle = Instance.new("TextLabel")
+hcTitle.Size = UDim2.new(1, -30, 0, 25)
+hcTitle.Position = UDim2.new(0, 15, 0, 12)
+hcTitle.BackgroundTransparency = 1
+hcTitle.Font = Enum.Font.GothamBold
+hcTitle.Text = "Visual Highlighter Settings"
+hcTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+hcTitle.TextSize = 14
+hcTitle.TextXAlignment = Enum.TextXAlignment.Left
+hcTitle.Parent = highCard
+
+local highToggleFrame = Instance.new("Frame")
+highToggleFrame.Size = UDim2.new(1, -30, 0, 40)
+highToggleFrame.Position = UDim2.new(0, 15, 0, 42)
+highToggleFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+highToggleFrame.BorderSizePixel = 0
+highToggleFrame.Parent = highCard
+
+local htfCorner = Instance.new("UICorner")
+htfCorner.CornerRadius = UDim.new(0, 6)
+htfCorner.Parent = highToggleFrame
+
+local highToggleLbl = Instance.new("TextLabel")
+highToggleLbl.Size = UDim2.new(0, 200, 1, 0)
+highToggleLbl.Position = UDim2.new(0, 12, 0, 0)
+highToggleLbl.BackgroundTransparency = 1
+highToggleLbl.Font = Enum.Font.GothamMedium
+highToggleLbl.Text = "Auto Highlight"
+highToggleLbl.TextColor3 = Color3.fromRGB(220, 220, 240)
+highToggleLbl.TextSize = 12
+highToggleLbl.TextXAlignment = Enum.TextXAlignment.Left
+highToggleLbl.Parent = highToggleFrame
+
+local highToggleBtn = Instance.new("TextButton")
+highToggleBtn.Size = UDim2.new(0, 60, 0, 24)
+highToggleBtn.Position = UDim2.new(1, -72, 0.5, -12)
+highToggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+highToggleBtn.Font = Enum.Font.GothamBold
+highToggleBtn.Text = "OFF"
+highToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+highToggleBtn.TextSize = 11
+highToggleBtn.Parent = highToggleFrame
+
+local htbCorner = Instance.new("UICorner")
+htbCorner.CornerRadius = UDim.new(0, 12)
+htbCorner.Parent = highToggleBtn
+
+local currentColorIndex = 1
+local availableColors = {
+	{Name = "Cyan / Light Blue", Color = Color3.fromRGB(0, 229, 255)},
+	{Name = "Neon Purple", Color = Color3.fromRGB(150, 50, 255)},
+	{Name = "Emerald Green", Color = Color3.fromRGB(50, 255, 150)},
+	{Name = "Sunset Orange", Color = Color3.fromRGB(255, 140, 0)}
+}
+
+local colorBtn = Instance.new("TextButton")
+colorBtn.Size = UDim2.new(1, -30, 0, 32)
+colorBtn.Position = UDim2.new(0, 15, 0, 90)
+colorBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+colorBtn.Font = Enum.Font.GothamMedium
+colorBtn.Text = "Highlight Color: Cyan / Light Blue"
+colorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+colorBtn.TextSize = 12
+colorBtn.Parent = highCard
+
+local cbCorner = Instance.new("UICorner")
+cbCorner.CornerRadius = UDim.new(0, 6)
+cbCorner.Parent = colorBtn
+
+local drawerHighlightEnabled = true
+local parentHighlightEnabled = false
+
+local function createCheckbox(name, posY, initialState, callback)
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(1, -30, 0, 32)
+	frame.Position = UDim2.new(0, 15, 0, posY)
+	frame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+	frame.BorderSizePixel = 0
+	frame.Parent = highCard
+	
+	local fCorner = Instance.new("UICorner")
+	fCorner.CornerRadius = UDim.new(0, 6)
+	fCorner.Parent = frame
+	
+	local lbl = Instance.new("TextLabel")
+	lbl.Size = UDim2.new(1, -50, 1, 0)
+	lbl.Position = UDim2.new(0, 12, 0, 0)
+	lbl.BackgroundTransparency = 1
+	lbl.Font = Enum.Font.GothamMedium
+	lbl.Text = name
+	lbl.TextColor3 = Color3.fromRGB(200, 200, 220)
+	lbl.TextSize = 12
+	lbl.TextXAlignment = Enum.TextXAlignment.Left
+	lbl.Parent = frame
+	
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0, 22, 0, 22)
+	btn.Position = UDim2.new(1, -30, 0.5, -11)
+	btn.BackgroundColor3 = initialState and Color3.fromRGB(58, 134, 255) or Color3.fromRGB(30, 30, 42)
+	btn.Font = Enum.Font.GothamBold
+	btn.Text = initialState and "✓" or ""
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.TextSize = 12
+	btn.Parent = frame
+	
+	local bCorner = Instance.new("UICorner")
+	bCorner.CornerRadius = UDim.new(0, 4)
+	bCorner.Parent = btn
+	
+	local state = initialState
+	btn.MouseButton1Click:Connect(function()
+		state = not state
+		btn.BackgroundColor3 = state and Color3.fromRGB(58, 134, 255) or Color3.fromRGB(30, 30, 42)
+		btn.Text = state and "✓" or ""
+		callback(state)
+	end)
+	
+	return frame
+end
+
+createCheckbox("Highlight DrawerContainer", 130, drawerHighlightEnabled, function(state)
+	drawerHighlightEnabled = state
+end)
+
+createCheckbox("Highlight Parent Model", 172, parentHighlightEnabled, function(state)
+	parentHighlightEnabled = state
+end)
+
+local removeAllHighBtn = Instance.new("TextButton")
+removeAllHighBtn.Size = UDim2.new(1, -30, 0, 34)
+removeAllHighBtn.Position = UDim2.new(0, 15, 0, 214)
+removeAllHighBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+removeAllHighBtn.Font = Enum.Font.GothamBold
+removeAllHighBtn.Text = "Remove All Highlights"
+removeAllHighBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+removeAllHighBtn.TextSize = 12
+removeAllHighBtn.Parent = highCard
+
+local rabCorner = Instance.new("UICorner")
+rabCorner.CornerRadius = UDim.new(0, 6)
+rabCorner.Parent = removeAllHighBtn
+
+
+-- ==========================================
+-- ВКЛАДКА 5: Door Detector & Highlighter
+-- ==========================================
+local doorTab = createTab("Door Detector", 5)
+
+local doorCard = Instance.new("Frame")
+doorCard.Size = UDim2.new(1, 0, 0, 250)
+doorCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+doorCard.BorderSizePixel = 0
+doorCard.Parent = doorTab
+
+local dcTitle = Instance.new("TextLabel")
+dcTitle.Size = UDim2.new(1, -30, 0, 25)
+dcTitle.Position = UDim2.new(0, 15, 0, 12)
+dcTitle.BackgroundTransparency = 1
+dcTitle.Font = Enum.Font.GothamBold
+dcTitle.Text = "Door Highlighter & Room Tracking"
+dcTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+dcTitle.TextSize = 14
+dcTitle.TextXAlignment = Enum.TextXAlignment.Left
+dcTitle.Parent = doorCard
+
+local highDoorFrame = Instance.new("Frame")
+highDoorFrame.Size = UDim2.new(1, -30, 0, 40)
+highDoorFrame.Position = UDim2.new(0, 15, 0, 45)
+highDoorFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+highDoorFrame.BorderSizePixel = 0
+highDoorFrame.Parent = doorCard
+
+local hdfCorner = Instance.new("UICorner")
+hdfCorner.CornerRadius = UDim.new(0, 6)
+hdfCorner.Parent = highDoorFrame
+
+local highDoorLbl = Instance.new("TextLabel")
+highDoorLbl.Size = UDim2.new(0, 200, 1, 0)
+highDoorLbl.Position = UDim2.new(0, 12, 0, 0)
+highDoorLbl.BackgroundTransparency = 1
+highDoorLbl.Font = Enum.Font.GothamMedium
+highDoorLbl.Text = "Highlight Active Doors"
+highDoorLbl.TextColor3 = Color3.fromRGB(220, 220, 240)
+highDoorLbl.TextSize = 12
+highDoorLbl.TextXAlignment = Enum.TextXAlignment.Left
+highDoorLbl.Parent = highDoorFrame
+
+local highDoorBtn = Instance.new("TextButton")
+highDoorBtn.Size = UDim2.new(0, 60, 0, 24)
+highDoorBtn.Position = UDim2.new(1, -72, 0.5, -12)
+highDoorBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+highDoorBtn.Font = Enum.Font.GothamBold
+highDoorBtn.Text = "OFF"
+highDoorBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+highDoorBtn.TextSize = 11
+highDoorBtn.Parent = highDoorFrame
+
+local hdbCorner = Instance.new("UICorner")
+hdbCorner.CornerRadius = UDim.new(0, 12)
+hdbCorner.Parent = highDoorBtn
+
+local doorColorIndex = 1
+local doorColors = {
+	{Name = "Cyan", Color = Color3.fromRGB(0, 229, 255)},
+	{Name = "Neon Purple", Color = Color3.fromRGB(150, 50, 255)},
+	{Name = "Emerald Green", Color = Color3.fromRGB(50, 255, 150)},
+	{Name = "Sunset Orange", Color = Color3.fromRGB(255, 140, 0)}
+}
+
+local doorColorBtn = Instance.new("TextButton")
+doorColorBtn.Size = UDim2.new(1, -30, 0, 32)
+doorColorBtn.Position = UDim2.new(0, 15, 0, 95)
+doorColorBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+doorColorBtn.Font = Enum.Font.GothamMedium
+doorColorBtn.Text = "Highlight Color: Cyan"
+doorColorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+doorColorBtn.TextSize = 12
+doorColorBtn.Parent = doorCard
+
+local dcbCorner = Instance.new("UICorner")
+dcbCorner.CornerRadius = UDim.new(0, 6)
+dcbCorner.Parent = doorColorBtn
+
+local doorStatsHolder = Instance.new("Frame")
+doorStatsHolder.Size = UDim2.new(1, -30, 0, 40)
+doorStatsHolder.Position = UDim2.new(0, 15, 0, 138)
+doorStatsHolder.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+doorStatsHolder.BorderSizePixel = 0
+doorStatsHolder.Parent = doorCard
+
+local dshCorner = Instance.new("UICorner")
+dshCorner.CornerRadius = UDim.new(0, 6)
+dshCorner.Parent = doorStatsHolder
+
+local detectedDoorsLbl = Instance.new("TextLabel")
+detectedDoorsLbl.Size = UDim2.new(1, -20, 1, 0)
+detectedDoorsLbl.Position = UDim2.new(0, 12, 0, 0)
+detectedDoorsLbl.BackgroundTransparency = 1
+detectedDoorsLbl.Font = Enum.Font.GothamMedium
+detectedDoorsLbl.Text = "Active Doors Highlighted: 0"
+detectedDoorsLbl.TextColor3 = Color3.fromRGB(0, 229, 255)
+detectedDoorsLbl.TextSize = 12
+detectedDoorsLbl.TextXAlignment = Enum.TextXAlignment.Left
+detectedDoorsLbl.Parent = doorStatsHolder
+
+local removeDoorHighBtn = Instance.new("TextButton")
+removeDoorHighBtn.Size = UDim2.new(1, -30, 0, 34)
+removeDoorHighBtn.Position = UDim2.new(0, 15, 0, 190)
+removeDoorHighBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+removeDoorHighBtn.Font = Enum.Font.GothamBold
+removeDoorHighBtn.Text = "Remove All Door Highlights"
+removeDoorHighBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+removeDoorHighBtn.TextSize = 12
+removeDoorHighBtn.Parent = doorCard
+
+local rdhCorner = Instance.new("UICorner")
+rdhCorner.CornerRadius = UDim.new(0, 6)
+rdhCorner.Parent = removeDoorHighBtn
+
+
+-- ==========================================
+-- ВКЛАДКА 6: Camera Settings (FOV Slider)
+-- ==========================================
+local cameraTab = createTab("Camera Settings", 6)
+
+local fovCard = Instance.new("Frame")
+fovCard.Size = UDim2.new(1, 0, 0, 160)
+fovCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+fovCard.BorderSizePixel = 0
+fovCard.Parent = cameraTab
+
+local fcTitle = Instance.new("TextLabel")
+fcTitle.Size = UDim2.new(1, -30, 0, 25)
+fcTitle.Position = UDim2.new(0, 15, 0, 12)
+fcTitle.BackgroundTransparency = 1
+fcTitle.Font = Enum.Font.GothamBold
+fcTitle.Text = "Camera Field of View (FOV)"
+fcTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+fcTitle.TextSize = 14
+fcTitle.TextXAlignment = Enum.TextXAlignment.Left
+fcTitle.Parent = fovCard
+
+local fovContainer = Instance.new("Frame")
+fovContainer.Size = UDim2.new(1, -30, 0, 85)
+fovContainer.Position = UDim2.new(0, 15, 0, 48)
+fovContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+fovContainer.BorderSizePixel = 0
+fovContainer.Parent = fovCard
+
+local fovFcCorner = Instance.new("UICorner")
+fovFcCorner.CornerRadius = UDim.new(0, 6)
+fovFcCorner.Parent = fovContainer
+
+local fovLabel = Instance.new("TextLabel")
+fovLabel.Size = UDim2.new(1, -20, 0, 25)
+fovLabel.Position = UDim2.new(0, 12, 0, 8)
+fovLabel.BackgroundTransparency = 1
+fovLabel.Font = Enum.Font.GothamMedium
+fovLabel.Text = "FOV: 70"
+fovLabel.TextColor3 = Color3.fromRGB(220, 220, 240)
+fovLabel.TextSize = 12
+fovLabel.TextXAlignment = Enum.TextXAlignment.Left
+fovLabel.Parent = fovContainer
+
+local sliderBg = Instance.new("Frame")
+sliderBg.Size = UDim2.new(1, -24, 0, 10)
+sliderBg.Position = UDim2.new(0, 12, 0, 48)
+sliderBg.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+sliderBg.BorderSizePixel = 0
+sliderBg.Parent = fovContainer
+
+local sbCorner = Instance.new("UICorner")
+sbCorner.CornerRadius = UDim.new(0, 5)
+sbCorner.Parent = sliderBg
+
+local sliderFill = Instance.new("Frame")
+sliderFill.Size = UDim2.new(0, 0, 1, 0)
+sliderFill.BackgroundColor3 = Color3.fromRGB(58, 134, 255)
+sliderFill.BorderSizePixel = 0
+sliderFill.Parent = sliderBg
+
+local sfCorner = Instance.new("UICorner")
+sfCorner.CornerRadius = UDim.new(0, 5)
+sfCorner.Parent = sliderFill
+
+local sliderButton = Instance.new("TextButton")
+sliderButton.Size = UDim2.new(0, 20, 0, 20)
+sliderButton.Position = UDim2.new(0, -10, 0.5, -10)
+sliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+sliderButton.Text = ""
+sliderButton.Parent = sliderBg
+
+local sbtnCorner = Instance.new("UICorner")
+sbtnCorner.CornerRadius = UDim.new(1, 0)
+sbtnCorner.Parent = sliderButton
+
+
+-- ==========================================
+-- ВКЛАДКА 7: Settings
+-- ==========================================
+local settingsTab = createTab("Settings", 7)
+
+local infoCard = Instance.new("Frame")
+infoCard.Size = UDim2.new(1, 0, 0, 130)
+infoCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+infoCard.BorderSizePixel = 0
+infoCard.Parent = settingsTab
+
+local icCorner = Instance.new("UICorner")
+icCorner.CornerRadius = UDim.new(0, 8)
+icCorner.Parent = infoCard
+
+local icTitle = Instance.new("TextLabel")
+icTitle.Size = UDim2.new(1, -30, 0, 30)
+icTitle.Position = UDim2.new(0, 15, 0, 15)
+icTitle.BackgroundTransparency = 1
+icTitle.Font = Enum.Font.GothamBold
+icTitle.Text = "About KeithLineHub v18.0"
+icTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+icTitle.TextSize = 14
+icTitle.TextXAlignment = Enum.TextXAlignment.Left
+icTitle.Parent = infoCard
+
+local icDesc = Instance.new("TextLabel")
+icDesc.Size = UDim2.new(1, -30, 0, 70)
+icDesc.Position = UDim2.new(0, 15, 0, 45)
+icDesc.BackgroundTransparency = 1
+icDesc.Font = Enum.Font.Gotham
+icDesc.Text = "Project: KeithLineHub\nHotkey: RightShift (Toggle)\nFeatures: No-Humanoid Bypass, Smart Cursor, Camera Lock, Stable FOV, Door Highlighter."
+icDesc.TextColor3 = Color3.fromRGB(150, 150, 175)
+icDesc.TextSize = 12
+icDesc.TextWrapped = true
+icDesc.TextXAlignment = Enum.TextXAlignment.Left
+icDesc.Parent = infoCard
+
+
+-- ==========================================
+-- ЛОГИКА АНТИЧИТ БАЙПАССА (Удаление Humanoid с сохранением камеры)
+-- ==========================================
+local bypassActive = false
+
+bypassToggleBtn.MouseButton1Click:Connect(function()
+	bypassActive = not bypassActive
+	local char = player.Character
+	if not char then return end
+	
+	if bypassActive then
+		bypassToggleBtn.Text = "ON"
+		bypassToggleBtn.BackgroundColor3 = Color3.fromRGB(58, 134, 255)
+		bypassToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		
+		local humanoid = char:FindFirstChildOfClass("Humanoid")
+		local rootPart = char:FindFirstChild("HumanoidRootPart") or char.PrimaryPart
+		
+		if humanoid and rootPart then
+			camera.CameraSubject = rootPart
+			camera.CameraType = Enum.CameraType.Custom
+			humanoid:Destroy()
+			sendNotification("AntiCheat Bypass", "Humanoid removed. Camera attached to RootPart.", 3)
+		end
+	else
+		bypassToggleBtn.Text = "OFF"
+		bypassToggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+		bypassToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+		sendNotification("AntiCheat Bypass", "Reset character to restore Humanoid.", 3)
+	end
+end)
+
+
+-- ==========================================
+-- ЛОГИКА AUTO DRAWER OPENER
+-- ==========================================
+local autoOpenerActive = false
+local activationDistance = 8
+local processedDrawers = {}
+local detectedDrawersMap = {}
+local openerLoop = nil
+
+local function updateOpenerStats()
+	local detectedCount = 0
+	local openedCount = 0
+	
+	for drawer, _ in pairs(detectedDrawersMap) do
+		if drawer and drawer.Parent and drawer:IsDescendantOf(Workspace) then
+			detectedCount += 1
+			if processedDrawers[drawer] then
+				openedCount += 1
+			end
+		else
+			detectedDrawersMap[drawer] = nil
+			processedDrawers[drawer] = nil
+		end
+	end
+	
+	local remainingCount = math.max(0, detectedCount - openedCount)
+	detectedLbl.Text = "Detected Drawers: " .. tostring(detectedCount)
+	openedLbl.Text = "Opened Drawers: " .. tostring(openedCount)
+	remainingLbl.Text = "Remaining Drawers: " .. tostring(remainingCount)
+end
+
+local function triggerDrawerInteraction(drawerContainer)
+	if processedDrawers[drawerContainer] then return end
+	
+	local triggered = false
+	for _, desc in ipairs(drawerContainer:GetDescendants()) do
+		if desc.Name == "ActivateEventPrompt" or desc:IsA("ProximityPrompt") then
+			if desc:IsA("ProximityPrompt") then
+				desc.RequiresLineOfSight = false
+				fireproximityprompt(desc)
+				triggered = true
+			elseif desc:IsA("RemoteEvent") then
+				desc:FireServer()
+				triggered = true
+			elseif desc:IsA("BindableEvent") then
+				desc:Fire()
+				triggered = true
+			end
+		end
+	end
+	
+	if triggered then
+		processedDrawers[drawerContainer] = true
+		updateOpenerStats()
+	end
+end
+
+local function getDrawerPosition(drawerContainer)
+	if drawerContainer:IsA("Model") then
+		local primary = drawerContainer.PrimaryPart
+		if primary then return primary.Position end
+		local part = drawerContainer:FindFirstChildWhichIsA("BasePart")
+		if part then return part.Position end
+	elseif drawerContainer:IsA("BasePart") then
+		return drawerContainer.Position
+	end
+	return nil
+end
+
+local function scanAndCheckProximity()
+	if not autoOpenerActive then return end
+	
+	local character = player.Character
+	if not character then return end
+	local rootPart = character:FindFirstChild("HumanoidRootPart") or character.PrimaryPart
+	if not rootPart then return end
+	
+	local function searchRecursive(parent)
+		for _, child in ipairs(parent:GetChildren()) do
+			if child.Name == "DrawerContainer" then
+				detectedDrawersMap[child] = true
+				
+				if not processedDrawers[child] then
+					local pos = getDrawerPosition(child)
+					if pos then
+						local distance = (rootPart.Position - pos).Magnitude
+						if distance <= activationDistance then
+							triggerDrawerInteraction(child)
+						end
+					end
+				end
+			end
+			if #child:GetChildren() > 0 then
+				searchRecursive(child)
+			end
+		end
+	end
+	
+	searchRecursive(Workspace)
+	updateOpenerStats()
+end
+
+openerToggleBtn.MouseButton1Click:Connect(function()
+	autoOpenerActive = not autoOpenerActive
+	
+	if autoOpenerActive then
+		openerToggleBtn.Text = "ON"
+		openerToggleBtn.BackgroundColor3 = Color3.fromRGB(58, 134, 255)
+		openerToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		sendNotification("Auto Opener", "Auto Drawer Opener activated.", 2.5)
+		
+		openerLoop = RunService.Heartbeat:Connect(function()
+			scanAndCheckProximity()
+		end)
+	else
+		openerToggleBtn.Text = "OFF"
+		openerToggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+		openerToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+		sendNotification("Auto Opener", "Auto Drawer Opener stopped.", 2.5)
+		
+		if openerLoop then
+			openerLoop:Disconnect()
+			openerLoop = nil
+		end
+	end
+end)
+
+
+-- ==========================================
+-- ЛОГИКА ВИЗУАЛЬНОГО ХАЙЛАЙТЕРА
+-- ==========================================
+local autoHighActive = false
+local currentHighlightColor = availableColors[1].Color
+local activeHighlights = {}
+local highLoop = nil
+
+colorBtn.MouseButton1Click:Connect(function()
+	currentColorIndex = currentColorIndex % #availableColors + 1
+	local selected = availableColors[currentColorIndex]
+	currentHighlightColor = selected.Color
+	colorBtn.Text = "Highlight Color: " .. selected.Name
+	
+	for _, hl in pairs(activeHighlights) do
+		if hl and hl.Parent then
+			hl.FillColor = currentHighlightColor
+		end
+	end
+end)
+
+local function getTargetParentModel(model)
+	local current = model.Parent
+	while current and current ~= Workspace do
+		if current:IsA("Model") then return current end
+		current = current.Parent
+	end
+	return model
+end
+
+local function updateHighlighters()
+	if not autoHighActive then return end
+	
+	local validTargets = {}
+	
+	local function searchRecursive(parent)
+		for _, child in ipairs(parent:GetChildren()) do
+			if child.Name == "DrawerContainer" then
+				if drawerHighlightEnabled then
+					validTargets[child] = true
+				end
+				if parentHighlightEnabled then
+					local parentModel = getTargetParentModel(child)
+					if parentModel then
+						validTargets[parentModel] = true
+					end
+				end
+			end
+			if #child:GetChildren() > 0 then
+				searchRecursive(child)
+			end
+		end
+	end
+	
+	searchRecursive(Workspace)
+	
+	for target, _ in pairs(validTargets) do
+		if not activeHighlights[target] or not activeHighlights[target].Parent then
+			local hl = Instance.new("Highlight")
+			hl.Name = "KeithLineVisualHighlighter"
+			hl.Adornee = target
+			hl.FillColor = currentHighlightColor
+			hl.FillTransparency = 0.4
+			hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+			hl.OutlineTransparency = 0.1
+			hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			hl.Parent = target
+			
+			activeHighlights[target] = hl
+		end
+	end
+	
+	for target, hl in pairs(activeHighlights) do
+		if not validTargets[target] or not target.Parent or not target:IsDescendantOf(Workspace) then
+			if hl and hl.Parent then
+				hl:Destroy()
+			end
+			activeHighlights[target] = nil
+		end
+	end
+end
+
+local function removeAllHighlighters()
+	for target, hl in pairs(activeHighlights) do
+		if hl and hl.Parent then
+			hl:Destroy()
+		end
+	end
+	activeHighlights = {}
+end
+
+highToggleBtn.MouseButton1Click:Connect(function()
+	autoHighActive = not autoHighActive
+	
+	if autoHighActive then
+		highToggleBtn.Text = "ON"
+		highToggleBtn.BackgroundColor3 = Color3.fromRGB(58, 134, 255)
+		highToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		sendNotification("Highlighter", "Visual Highlighter activated.", 2.5)
+		
+		highLoop = RunService.Heartbeat:Connect(function()
+			updateHighlighters()
+		end)
+	else
+		highToggleBtn.Text = "OFF"
+		highToggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+		highToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+		sendNotification("Highlighter", "Visual Highlighter disabled.", 2.5)
+		
+		if highLoop then
+			highLoop:Disconnect()
+			highLoop = nil
+		end
+		removeAllHighlighters()
+	end
+end)
+
+removeAllHighBtn.MouseButton1Click:Connect(function()
+	removeAllHighlighters()
+	sendNotification("Highlighter", "All highlights cleared.", 2)
+end)
+
+
+-- ==========================================
+-- ЛОГИКА ПОДСВЕТКИ ДВЕРЕЙ
+-- ==========================================
+local autoHighlightDoorsActive = false
+local currentDoorColor = doorColors[1].Color
+local activeDoorHighlights = {}
+local doorLoop = nil
+
+doorColorBtn.MouseButton1Click:Connect(function()
+	doorColorIndex = doorColorIndex % #doorColors + 1
+	local selected = doorColors[doorColorIndex]
+	currentDoorColor = selected.Color
+	doorColorBtn.Text = "Highlight Color: " .. selected.Name
+	
+	for _, hl in pairs(activeDoorHighlights) do
+		if hl and hl.Parent then
+			hl.FillColor = currentDoorColor
+		end
+	end
+end)
+
+local function updateDoorHighlighter()
+	if not autoHighlightDoorsActive then return end
+	
+	local foundDoors = {}
+	
+	local function searchDoorsRecursive(parent)
+		for _, child in ipairs(parent:GetChildren()) do
+			if child.Name == "Door" and child:IsA("Model") then
+				local isOpened = child:GetAttribute("Opened")
+				if not isOpened then
+					foundDoors[child] = true
+				end
+			end
+			if #child:GetChildren() > 0 then
+				searchDoorsRecursive(child)
+			end
+		end
+	end
+	
+	searchDoorsRecursive(Workspace)
+	
+	local currentRoomsFolder = Workspace:FindFirstChild("CurrentRooms")
+	if currentRoomsFolder then
+		searchDoorsRecursive(currentRoomsFolder)
+	end
+	
+	local count = 0
+	for doorModel, _ in pairs(foundDoors) do
+		count += 1
+		
+		if not activeDoorHighlights[doorModel] or not activeDoorHighlights[doorModel].Parent then
+			local hl = Instance.new("Highlight")
+			hl.Name = "KeithLineDoorHighlight"
+			hl.Adornee = doorModel
+			hl.FillColor = currentDoorColor
+			hl.FillTransparency = 0.4
+			hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+			hl.OutlineTransparency = 0.1
+			hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			hl.Parent = doorModel
+			
+			activeDoorHighlights[doorModel] = hl
+			
+			doorModel:GetAttributeChangedSignal("Opened"):Connect(function()
+				if doorModel:GetAttribute("Opened") == true then
+					if activeDoorHighlights[doorModel] then
+						activeDoorHighlights[doorModel]:Destroy()
+						activeDoorHighlights[doorModel] = nil
+					end
+				end
+			end)
+		end
+	end
+	
+	for doorModel, hl in pairs(activeDoorHighlights) do
+		if not foundDoors[doorModel] or not doorModel.Parent or not doorModel:IsDescendantOf(Workspace) or doorModel:GetAttribute("Opened") == true then
+			if hl and hl.Parent then
+				hl:Destroy()
+			end
+			activeDoorHighlights[doorModel] = nil
+		end
+	end
+	
+	detectedDoorsLbl.Text = "Active Doors Highlighted: " .. tostring(count)
+end
+
+local function removeAllDoorHighlights()
+	for _, hl in pairs(activeDoorHighlights) do
+		if hl and hl.Parent then
+			hl:Destroy()
+		end
+	end
+	activeDoorHighlights = {}
+	detectedDoorsLbl.Text = "Active Doors Highlighted: 0"
+end
+
+highDoorBtn.MouseButton1Click:Connect(function()
+	autoHighlightDoorsActive = not autoHighlightDoorsActive
+	
+	if autoHighlightDoorsActive then
+		highDoorBtn.Text = "ON"
+		highDoorBtn.BackgroundColor3 = Color3.fromRGB(58, 134, 255)
+		highDoorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		sendNotification("Door Highlighter", "Independent Door Highlighting enabled.", 2.5)
+		
+		doorLoop = RunService.Heartbeat:Connect(function()
+			updateDoorHighlighter()
+		end)
+	else
+		highDoorBtn.Text = "OFF"
+		highDoorBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+		highDoorBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+		sendNotification("Door Highlighter", "Door Highlighting disabled.", 2.5)
+		
+		if doorLoop then
+			doorLoop:Disconnect()
+			doorLoop = nil
+		end
+		removeAllDoorHighlights()
+	end
+end)
+
+removeDoorHighBtn.MouseButton1Click:Connect(function()
+	removeAllDoorHighlights()
+	sendNotification("Door Highlighter", "All door highlights removed.", 2)
+end)
+
+
+-- ==========================================
+-- ЛОГИКА КАМЕРЫ И СТАБИЛЬНОГО FOV
+-- ==========================================
+local targetFOV = 70
+local minFOV = 70
+local maxFOV = 120
+local fovConnection = nil
+
+local function applyFOV(val, instant)
+	targetFOV = math.clamp(val, minFOV, maxFOV)
+	fovLabel.Text = "FOV: " .. tostring(math.round(targetFOV))
+	
+	local percent = (targetFOV - minFOV) / (maxFOV - minFOV)
+	sliderFill.Size = UDim2.new(percent, 0, 1, 0)
+	sliderButton.Position = UDim2.new(percent, -10, 0.5, -10)
+	
+	local currentCam = Workspace.CurrentCamera
+	if currentCam then
+		if instant then
+			currentCam.FieldOfView = targetFOV
+		else
+			TweenService:Create(currentCam, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				FieldOfView = targetFOV
+			}):Play()
+		end
+	end
+end
+
+local function setupCameraProtection(cam)
+	if fovConnection then
+		fovConnection:Disconnect()
+		fovConnection = nil
+	end
+	
+	if cam then
+		cam.FieldOfView = targetFOV
+		fovConnection = cam:GetPropertyChangedSignal("FieldOfView"):Connect(function()
+			if cam.FieldOfView ~= targetFOV and targetFOV ~= 70 then
+				cam.FieldOfView = targetFOV
+			end
+		end)
+	end
+end
+
+setupCameraProtection(Workspace.CurrentCamera)
+
+Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+	setupCameraProtection(Workspace.CurrentCamera)
+end)
+
+player.CharacterAdded:Connect(function(char)
+	task.delay(0.5, function()
+		setupCameraProtection(Workspace.CurrentCamera)
+	end)
+end)
+
+local sliderDragging = false
+sliderButton.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		sliderDragging = true
+	end
+end)
+
+sliderBg.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		sliderDragging = true
+		local mousePos = input.Position.X
+		local bgPos = sliderBg.AbsolutePosition.X
+		local bgSize = sliderBg.AbsoluteSize.X
+		local percent = math.clamp((mousePos - bgPos) / bgSize, 0, 1)
+		applyFOV(minFOV + percent * (maxFOV - minFOV), true)
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		sliderDragging = false
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if sliderDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local mousePos = input.Position.X
+		local bgPos = sliderBg.AbsolutePosition.X
+		local bgSize = sliderBg.AbsoluteSize.X
+		local percent = math.clamp((mousePos - bgPos) / bgSize, 0, 1)
+		applyFOV(minFOV + percent * (maxFOV - minFOV), true)
+	end
+end)
+
+
+-- ==========================================
+-- УПРАВЛЕНИЕ ИНТЕРФЕЙСОМ И КУСОРОМ (RightShift Toggle)
+-- ==========================================
+toggleGUI = function()
+	isOpen = not isOpen
+	
+	if isOpen then
+		mainFrame.Visible = true
+		mainFrame.Size = UDim2.new(0, 720, 0, 540)
+		mainFrame.BackgroundTransparency = 1
+		TweenService:Create(mainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, 780, 0, 600),
+			BackgroundTransparency = 0
+		}):Play()
+		
+		UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+		UserInputService.MouseIconEnabled = true
+	else
+		local tweenOut = TweenService:Create(mainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 720, 0, 540),
+			BackgroundTransparency = 1
+		})
+		tweenOut:Play()
+		tweenOut.Completed:Connect(function()
+			if not isOpen then mainFrame.Visible = false end
+		end)
+		
+		UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+		UserInputService.MouseIconEnabled = false
+	end
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if input.KeyCode == Enum.KeyCode.RightShift then
+		toggleGUI()
+	end
+end)
+
+player.CharacterAdded:Connect(function(newChar)
+	task.delay(0.5, function()
+		if isOpen then
+			UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+			UserInputService.MouseIconEnabled = true
+		else
+			UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+			UserInputService.MouseIconEnabled = false
+		end
+	end)
+end)
+
+task.delay(1, function()
+	sendNotification("KeithLineHub v18.0", "Press [ RightShift ] to toggle menu.", 4)
+end)
