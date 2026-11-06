@@ -1,7 +1,7 @@
---[[\
+--[[
 	KeithLineHub - Premium Development & Testing GUI (v18.0)
 	Created for Roblox Studio
-	Features: No-Humanoid AntiCheat Bypass, Stable FOV Protection, Door Highlighter, Auto Opener, Cleaned Speed System.
+	Features: No-Humanoid AntiCheat Bypass, Stable FOV Protection, Door Highlighter, Auto Opener, Speedhack.
 --]]
 
 local Players = game:GetService("Players")
@@ -222,16 +222,16 @@ local function sendNotification(title, text, duration)
 	notif.BorderSizePixel = 0
 	notif.Position = UDim2.new(1, 50, 0, 0)
 	notif.Parent = notificationHolder
-	
+
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 8)
 	corner.Parent = notif
-	
+
 	local stroke = Instance.new("UIStroke")
 	stroke.Color = Color3.fromRGB(58, 134, 255)
 	stroke.Transparency = 0.5
 	stroke.Parent = notif
-	
+
 	local titleLbl = Instance.new("TextLabel")
 	titleLbl.Size = UDim2.new(1, -20, 0, 22)
 	titleLbl.Position = UDim2.new(0, 12, 0, 8)
@@ -242,7 +242,7 @@ local function sendNotification(title, text, duration)
 	titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 	titleLbl.Text = title
 	titleLbl.Parent = notif
-	
+
 	local descLbl = Instance.new("TextLabel")
 	descLbl.Size = UDim2.new(1, -20, 0, 25)
 	descLbl.Position = UDim2.new(0, 12, 0, 30)
@@ -253,7 +253,7 @@ local function sendNotification(title, text, duration)
 	descLbl.TextXAlignment = Enum.TextXAlignment.Left
 	descLbl.Text = text
 	descLbl.Parent = notif
-	
+
 	TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 0, 0)}):Play()
 	task.delay(duration, function()
 		if notif and notif.Parent then
@@ -300,11 +300,11 @@ local function createTab(name, layoutOrder)
 	tabBtn.TextXAlignment = Enum.TextXAlignment.Left
 	tabBtn.LayoutOrder = layoutOrder
 	tabBtn.Parent = sidebar
-	
+
 	local btnCorner = Instance.new("UICorner")
 	btnCorner.CornerRadius = UDim.new(0, 8)
 	btnCorner.Parent = tabBtn
-	
+
 	local tabContent = Instance.new("ScrollingFrame")
 	tabContent.Size = UDim2.new(1, 0, 1, 0)
 	tabContent.BackgroundTransparency = 1
@@ -315,19 +315,19 @@ local function createTab(name, layoutOrder)
 	tabContent.ScrollBarImageColor3 = Color3.fromRGB(123, 44, 191)
 	tabContent.Visible = false
 	tabContent.Parent = contentContainer
-	
+
 	local contentLayout = Instance.new("UIListLayout")
 	contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	contentLayout.Padding = UDim.new(0, 12)
 	contentLayout.Parent = tabContent
-	
+
 	local contentPadding = Instance.new("UIPadding")
 	contentPadding.PaddingTop = UDim.new(0, 16)
 	contentPadding.PaddingLeft = UDim.new(0, 16)
 	contentPadding.PaddingRight = UDim.new(0, 16)
 	contentPadding.PaddingBottom = UDim.new(0, 16)
 	contentPadding.Parent = tabContent
-	
+
 	tabBtn.MouseButton1Click:Connect(function()
 		for _, t in pairs(tabs) do
 			TweenService:Create(t.Btn, TweenInfo.new(0.2), {BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(140, 140, 165)}):Play()
@@ -337,14 +337,14 @@ local function createTab(name, layoutOrder)
 		tabBtn.BackgroundColor3 = Color3.fromRGB(30, 25, 45)
 		tabContent.Visible = true
 	end)
-	
+
 	if #tabs == 0 then
 		tabBtn.BackgroundTransparency = 0
 		tabBtn.BackgroundColor3 = Color3.fromRGB(30, 25, 45)
 		tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 		tabContent.Visible = true
 	end
-	
+
 	table.insert(tabs, {Btn = tabBtn, Content = tabContent})
 	return tabContent
 end
@@ -380,7 +380,7 @@ wcDesc.Size = UDim2.new(1, -30, 0, 40)
 wcDesc.Position = UDim2.new(0, 15, 0, 42)
 wcDesc.BackgroundTransparency = 1
 wcDesc.Font = Enum.Font.Gotham
-wcDesc.Text = "SpeedHack completely removed. Features: AntiCheat Bypass, Stable FOV Protection, Door Highlighter & Auto Opener. Hotkey: RightShift."
+wcDesc.Text = "Features: AntiCheat Bypass, Speedhack, Stable FOV Protection, Door Highlighter & Auto Opener. Hotkey: RightShift."
 wcDesc.TextColor3 = Color3.fromRGB(150, 150, 175)
 wcDesc.TextSize = 12
 wcDesc.TextWrapped = true
@@ -674,11 +674,11 @@ local function createCheckbox(name, posY, initialState, callback)
 	frame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
 	frame.BorderSizePixel = 0
 	frame.Parent = highCard
-	
+
 	local fCorner = Instance.new("UICorner")
 	fCorner.CornerRadius = UDim.new(0, 6)
 	fCorner.Parent = frame
-	
+
 	local lbl = Instance.new("TextLabel")
 	lbl.Size = UDim2.new(1, -50, 1, 0)
 	lbl.Position = UDim2.new(0, 12, 0, 0)
@@ -689,7 +689,7 @@ local function createCheckbox(name, posY, initialState, callback)
 	lbl.TextSize = 12
 	lbl.TextXAlignment = Enum.TextXAlignment.Left
 	lbl.Parent = frame
-	
+
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(0, 22, 0, 22)
 	btn.Position = UDim2.new(1, -30, 0.5, -11)
@@ -699,11 +699,11 @@ local function createCheckbox(name, posY, initialState, callback)
 	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	btn.TextSize = 12
 	btn.Parent = frame
-	
+
 	local bCorner = Instance.new("UICorner")
 	bCorner.CornerRadius = UDim.new(0, 4)
 	bCorner.Parent = btn
-	
+
 	local state = initialState
 	btn.MouseButton1Click:Connect(function()
 		state = not state
@@ -711,7 +711,7 @@ local function createCheckbox(name, posY, initialState, callback)
 		btn.Text = state and "✓" or ""
 		callback(state)
 	end)
-	
+
 	return frame
 end
 
@@ -748,6 +748,10 @@ doorCard.Size = UDim2.new(1, 0, 0, 250)
 doorCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
 doorCard.BorderSizePixel = 0
 doorCard.Parent = doorTab
+
+local doorCardCorner = Instance.new("UICorner")
+doorCardCorner.CornerRadius = UDim.new(0, 8)
+doorCardCorner.Parent = doorCard
 
 local dcTitle = Instance.new("TextLabel")
 dcTitle.Size = UDim2.new(1, -30, 0, 25)
@@ -866,6 +870,10 @@ fovCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
 fovCard.BorderSizePixel = 0
 fovCard.Parent = cameraTab
 
+local fovCardCorner = Instance.new("UICorner")
+fovCardCorner.CornerRadius = UDim.new(0, 8)
+fovCardCorner.Parent = fovCard
+
 local fcTitle = Instance.new("TextLabel")
 fcTitle.Size = UDim2.new(1, -30, 0, 25)
 fcTitle.Position = UDim2.new(0, 15, 0, 12)
@@ -933,9 +941,121 @@ sbtnCorner.Parent = sliderButton
 
 
 -- ==========================================
--- ВКЛАДКА 7: Settings
+-- ВКЛАДКА 7: Speed (Speedhack)
 -- ==========================================
-local settingsTab = createTab("Settings", 7)
+local speedTab = createTab("Speed", 7)
+
+local speedCard = Instance.new("Frame")
+speedCard.Size = UDim2.new(1, 0, 0, 190)
+speedCard.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+speedCard.BorderSizePixel = 0
+speedCard.Parent = speedTab
+
+local spcCorner = Instance.new("UICorner")
+spcCorner.CornerRadius = UDim.new(0, 8)
+spcCorner.Parent = speedCard
+
+local spcTitle = Instance.new("TextLabel")
+spcTitle.Size = UDim2.new(1, -30, 0, 25)
+spcTitle.Position = UDim2.new(0, 15, 0, 12)
+spcTitle.BackgroundTransparency = 1
+spcTitle.Font = Enum.Font.GothamBold
+spcTitle.Text = "Speedhack"
+spcTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+spcTitle.TextSize = 14
+spcTitle.TextXAlignment = Enum.TextXAlignment.Left
+spcTitle.Parent = speedCard
+
+local speedToggleFrame = Instance.new("Frame")
+speedToggleFrame.Size = UDim2.new(1, -30, 0, 40)
+speedToggleFrame.Position = UDim2.new(0, 15, 0, 42)
+speedToggleFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+speedToggleFrame.BorderSizePixel = 0
+speedToggleFrame.Parent = speedCard
+
+local stfCorner = Instance.new("UICorner")
+stfCorner.CornerRadius = UDim.new(0, 6)
+stfCorner.Parent = speedToggleFrame
+
+local speedToggleLbl = Instance.new("TextLabel")
+speedToggleLbl.Size = UDim2.new(0, 200, 1, 0)
+speedToggleLbl.Position = UDim2.new(0, 12, 0, 0)
+speedToggleLbl.BackgroundTransparency = 1
+speedToggleLbl.Font = Enum.Font.GothamMedium
+speedToggleLbl.Text = "Enable Speedhack"
+speedToggleLbl.TextColor3 = Color3.fromRGB(220, 220, 240)
+speedToggleLbl.TextSize = 12
+speedToggleLbl.TextXAlignment = Enum.TextXAlignment.Left
+speedToggleLbl.Parent = speedToggleFrame
+
+local speedToggleBtn = Instance.new("TextButton")
+speedToggleBtn.Size = UDim2.new(0, 60, 0, 24)
+speedToggleBtn.Position = UDim2.new(1, -72, 0.5, -12)
+speedToggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+speedToggleBtn.Font = Enum.Font.GothamBold
+speedToggleBtn.Text = "OFF"
+speedToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+speedToggleBtn.TextSize = 11
+speedToggleBtn.Parent = speedToggleFrame
+
+local stbCorner = Instance.new("UICorner")
+stbCorner.CornerRadius = UDim.new(0, 12)
+stbCorner.Parent = speedToggleBtn
+
+local speedInputFrame = Instance.new("Frame")
+speedInputFrame.Size = UDim2.new(1, -30, 0, 36)
+speedInputFrame.Position = UDim2.new(0, 15, 0, 90)
+speedInputFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+speedInputFrame.BorderSizePixel = 0
+speedInputFrame.Parent = speedCard
+
+local sifCorner = Instance.new("UICorner")
+sifCorner.CornerRadius = UDim.new(0, 6)
+sifCorner.Parent = speedInputFrame
+
+local speedInputLbl = Instance.new("TextLabel")
+speedInputLbl.Size = UDim2.new(0, 200, 1, 0)
+speedInputLbl.Position = UDim2.new(0, 12, 0, 0)
+speedInputLbl.BackgroundTransparency = 1
+speedInputLbl.Font = Enum.Font.GothamMedium
+speedInputLbl.Text = "Speed Power (16 - 100)"
+speedInputLbl.TextColor3 = Color3.fromRGB(200, 200, 220)
+speedInputLbl.TextSize = 12
+speedInputLbl.TextXAlignment = Enum.TextXAlignment.Left
+speedInputLbl.Parent = speedInputFrame
+
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(0, 70, 0, 24)
+speedBox.Position = UDim2.new(1, -82, 0.5, -12)
+speedBox.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+speedBox.Font = Enum.Font.GothamBold
+speedBox.Text = "50"
+speedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedBox.TextSize = 12
+speedBox.ClearTextOnFocus = false
+speedBox.Parent = speedInputFrame
+
+local sbxCorner = Instance.new("UICorner")
+sbxCorner.CornerRadius = UDim.new(0, 6)
+sbxCorner.Parent = speedBox
+
+local speedWarnLbl = Instance.new("TextLabel")
+speedWarnLbl.Size = UDim2.new(1, -30, 0, 45)
+speedWarnLbl.Position = UDim2.new(0, 15, 0, 132)
+speedWarnLbl.BackgroundTransparency = 1
+speedWarnLbl.Font = Enum.Font.Gotham
+speedWarnLbl.Text = "⚠️ If Speed > 40: rooms may load slowly & cause stucks! Doesn't work while Humanoid is removed (Bypass)."
+speedWarnLbl.TextColor3 = Color3.fromRGB(255, 200, 50)
+speedWarnLbl.TextSize = 11
+speedWarnLbl.TextWrapped = true
+speedWarnLbl.TextXAlignment = Enum.TextXAlignment.Left
+speedWarnLbl.Parent = speedCard
+
+
+-- ==========================================
+-- ВКЛАДКА 8: Settings
+-- ==========================================
+local settingsTab = createTab("Settings", 8)
 
 local infoCard = Instance.new("Frame")
 infoCard.Size = UDim2.new(1, 0, 0, 130)
@@ -963,7 +1083,7 @@ icDesc.Size = UDim2.new(1, -30, 0, 70)
 icDesc.Position = UDim2.new(0, 15, 0, 45)
 icDesc.BackgroundTransparency = 1
 icDesc.Font = Enum.Font.Gotham
-icDesc.Text = "Project: KeithLineHub\nHotkey: RightShift (Toggle)\nFeatures: No-Humanoid Bypass, Smart Cursor, Camera Lock, Stable FOV, Door Highlighter."
+icDesc.Text = "Project: KeithLineHub\nHotkey: RightShift (Toggle)\nFeatures: No-Humanoid Bypass, Speedhack, Camera Lock, Stable FOV, Door Highlighter."
 icDesc.TextColor3 = Color3.fromRGB(150, 150, 175)
 icDesc.TextSize = 12
 icDesc.TextWrapped = true
@@ -980,15 +1100,15 @@ bypassToggleBtn.MouseButton1Click:Connect(function()
 	bypassActive = not bypassActive
 	local char = player.Character
 	if not char then return end
-	
+
 	if bypassActive then
 		bypassToggleBtn.Text = "ON"
 		bypassToggleBtn.BackgroundColor3 = Color3.fromRGB(58, 134, 255)
 		bypassToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-		
+
 		local humanoid = char:FindFirstChildOfClass("Humanoid")
 		local rootPart = char:FindFirstChild("HumanoidRootPart") or char.PrimaryPart
-		
+
 		if humanoid and rootPart then
 			camera.CameraSubject = rootPart
 			camera.CameraType = Enum.CameraType.Custom
@@ -1016,7 +1136,7 @@ local openerLoop = nil
 local function updateOpenerStats()
 	local detectedCount = 0
 	local openedCount = 0
-	
+
 	for drawer, _ in pairs(detectedDrawersMap) do
 		if drawer and drawer.Parent and drawer:IsDescendantOf(Workspace) then
 			detectedCount += 1
@@ -1028,7 +1148,7 @@ local function updateOpenerStats()
 			processedDrawers[drawer] = nil
 		end
 	end
-	
+
 	local remainingCount = math.max(0, detectedCount - openedCount)
 	detectedLbl.Text = "Detected Drawers: " .. tostring(detectedCount)
 	openedLbl.Text = "Opened Drawers: " .. tostring(openedCount)
@@ -1037,7 +1157,7 @@ end
 
 local function triggerDrawerInteraction(drawerContainer)
 	if processedDrawers[drawerContainer] then return end
-	
+
 	local triggered = false
 	for _, desc in ipairs(drawerContainer:GetDescendants()) do
 		if desc.Name == "ActivateEventPrompt" or desc:IsA("ProximityPrompt") then
@@ -1054,7 +1174,7 @@ local function triggerDrawerInteraction(drawerContainer)
 			end
 		end
 	end
-	
+
 	if triggered then
 		processedDrawers[drawerContainer] = true
 		updateOpenerStats()
@@ -1075,17 +1195,17 @@ end
 
 local function scanAndCheckProximity()
 	if not autoOpenerActive then return end
-	
+
 	local character = player.Character
 	if not character then return end
 	local rootPart = character:FindFirstChild("HumanoidRootPart") or character.PrimaryPart
 	if not rootPart then return end
-	
+
 	local function searchRecursive(parent)
 		for _, child in ipairs(parent:GetChildren()) do
 			if child.Name == "DrawerContainer" then
 				detectedDrawersMap[child] = true
-				
+
 				if not processedDrawers[child] then
 					local pos = getDrawerPosition(child)
 					if pos then
@@ -1101,20 +1221,20 @@ local function scanAndCheckProximity()
 			end
 		end
 	end
-	
+
 	searchRecursive(Workspace)
 	updateOpenerStats()
 end
 
 openerToggleBtn.MouseButton1Click:Connect(function()
 	autoOpenerActive = not autoOpenerActive
-	
+
 	if autoOpenerActive then
 		openerToggleBtn.Text = "ON"
 		openerToggleBtn.BackgroundColor3 = Color3.fromRGB(58, 134, 255)
 		openerToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 		sendNotification("Auto Opener", "Auto Drawer Opener activated.", 2.5)
-		
+
 		openerLoop = RunService.Heartbeat:Connect(function()
 			scanAndCheckProximity()
 		end)
@@ -1123,7 +1243,7 @@ openerToggleBtn.MouseButton1Click:Connect(function()
 		openerToggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
 		openerToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
 		sendNotification("Auto Opener", "Auto Drawer Opener stopped.", 2.5)
-		
+
 		if openerLoop then
 			openerLoop:Disconnect()
 			openerLoop = nil
@@ -1145,7 +1265,7 @@ colorBtn.MouseButton1Click:Connect(function()
 	local selected = availableColors[currentColorIndex]
 	currentHighlightColor = selected.Color
 	colorBtn.Text = "Highlight Color: " .. selected.Name
-	
+
 	for _, hl in pairs(activeHighlights) do
 		if hl and hl.Parent then
 			hl.FillColor = currentHighlightColor
@@ -1164,9 +1284,9 @@ end
 
 local function updateHighlighters()
 	if not autoHighActive then return end
-	
+
 	local validTargets = {}
-	
+
 	local function searchRecursive(parent)
 		for _, child in ipairs(parent:GetChildren()) do
 			if child.Name == "DrawerContainer" then
@@ -1185,9 +1305,9 @@ local function updateHighlighters()
 			end
 		end
 	end
-	
+
 	searchRecursive(Workspace)
-	
+
 	for target, _ in pairs(validTargets) do
 		if not activeHighlights[target] or not activeHighlights[target].Parent then
 			local hl = Instance.new("Highlight")
@@ -1199,11 +1319,11 @@ local function updateHighlighters()
 			hl.OutlineTransparency = 0.1
 			hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 			hl.Parent = target
-			
+
 			activeHighlights[target] = hl
 		end
 	end
-	
+
 	for target, hl in pairs(activeHighlights) do
 		if not validTargets[target] or not target.Parent or not target:IsDescendantOf(Workspace) then
 			if hl and hl.Parent then
@@ -1225,13 +1345,13 @@ end
 
 highToggleBtn.MouseButton1Click:Connect(function()
 	autoHighActive = not autoHighActive
-	
+
 	if autoHighActive then
 		highToggleBtn.Text = "ON"
 		highToggleBtn.BackgroundColor3 = Color3.fromRGB(58, 134, 255)
 		highToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 		sendNotification("Highlighter", "Visual Highlighter activated.", 2.5)
-		
+
 		highLoop = RunService.Heartbeat:Connect(function()
 			updateHighlighters()
 		end)
@@ -1240,7 +1360,7 @@ highToggleBtn.MouseButton1Click:Connect(function()
 		highToggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
 		highToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
 		sendNotification("Highlighter", "Visual Highlighter disabled.", 2.5)
-		
+
 		if highLoop then
 			highLoop:Disconnect()
 			highLoop = nil
@@ -1268,7 +1388,7 @@ doorColorBtn.MouseButton1Click:Connect(function()
 	local selected = doorColors[doorColorIndex]
 	currentDoorColor = selected.Color
 	doorColorBtn.Text = "Highlight Color: " .. selected.Name
-	
+
 	for _, hl in pairs(activeDoorHighlights) do
 		if hl and hl.Parent then
 			hl.FillColor = currentDoorColor
@@ -1278,9 +1398,9 @@ end)
 
 local function updateDoorHighlighter()
 	if not autoHighlightDoorsActive then return end
-	
+
 	local foundDoors = {}
-	
+
 	local function searchDoorsRecursive(parent)
 		for _, child in ipairs(parent:GetChildren()) do
 			if child.Name == "Door" and child:IsA("Model") then
@@ -1294,18 +1414,18 @@ local function updateDoorHighlighter()
 			end
 		end
 	end
-	
+
 	searchDoorsRecursive(Workspace)
-	
+
 	local currentRoomsFolder = Workspace:FindFirstChild("CurrentRooms")
 	if currentRoomsFolder then
 		searchDoorsRecursive(currentRoomsFolder)
 	end
-	
+
 	local count = 0
 	for doorModel, _ in pairs(foundDoors) do
 		count += 1
-		
+
 		if not activeDoorHighlights[doorModel] or not activeDoorHighlights[doorModel].Parent then
 			local hl = Instance.new("Highlight")
 			hl.Name = "KeithLineDoorHighlight"
@@ -1316,9 +1436,9 @@ local function updateDoorHighlighter()
 			hl.OutlineTransparency = 0.1
 			hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 			hl.Parent = doorModel
-			
+
 			activeDoorHighlights[doorModel] = hl
-			
+
 			doorModel:GetAttributeChangedSignal("Opened"):Connect(function()
 				if doorModel:GetAttribute("Opened") == true then
 					if activeDoorHighlights[doorModel] then
@@ -1329,7 +1449,7 @@ local function updateDoorHighlighter()
 			end)
 		end
 	end
-	
+
 	for doorModel, hl in pairs(activeDoorHighlights) do
 		if not foundDoors[doorModel] or not doorModel.Parent or not doorModel:IsDescendantOf(Workspace) or doorModel:GetAttribute("Opened") == true then
 			if hl and hl.Parent then
@@ -1338,7 +1458,7 @@ local function updateDoorHighlighter()
 			activeDoorHighlights[doorModel] = nil
 		end
 	end
-	
+
 	detectedDoorsLbl.Text = "Active Doors Highlighted: " .. tostring(count)
 end
 
@@ -1354,13 +1474,13 @@ end
 
 highDoorBtn.MouseButton1Click:Connect(function()
 	autoHighlightDoorsActive = not autoHighlightDoorsActive
-	
+
 	if autoHighlightDoorsActive then
 		highDoorBtn.Text = "ON"
 		highDoorBtn.BackgroundColor3 = Color3.fromRGB(58, 134, 255)
 		highDoorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 		sendNotification("Door Highlighter", "Independent Door Highlighting enabled.", 2.5)
-		
+
 		doorLoop = RunService.Heartbeat:Connect(function()
 			updateDoorHighlighter()
 		end)
@@ -1369,7 +1489,7 @@ highDoorBtn.MouseButton1Click:Connect(function()
 		highDoorBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
 		highDoorBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
 		sendNotification("Door Highlighter", "Door Highlighting disabled.", 2.5)
-		
+
 		if doorLoop then
 			doorLoop:Disconnect()
 			doorLoop = nil
@@ -1395,11 +1515,11 @@ local fovConnection = nil
 local function applyFOV(val, instant)
 	targetFOV = math.clamp(val, minFOV, maxFOV)
 	fovLabel.Text = "FOV: " .. tostring(math.round(targetFOV))
-	
+
 	local percent = (targetFOV - minFOV) / (maxFOV - minFOV)
 	sliderFill.Size = UDim2.new(percent, 0, 1, 0)
 	sliderButton.Position = UDim2.new(percent, -10, 0.5, -10)
-	
+
 	local currentCam = Workspace.CurrentCamera
 	if currentCam then
 		if instant then
@@ -1417,7 +1537,7 @@ local function setupCameraProtection(cam)
 		fovConnection:Disconnect()
 		fovConnection = nil
 	end
-	
+
 	if cam then
 		cam.FieldOfView = targetFOV
 		fovConnection = cam:GetPropertyChangedSignal("FieldOfView"):Connect(function()
@@ -1476,11 +1596,70 @@ end)
 
 
 -- ==========================================
--- УПРАВЛЕНИЕ ИНТЕРФЕЙСОМ И КУСОРОМ (RightShift Toggle)
+-- ЛОГИКА СПИДХАКА
+-- ==========================================
+local speedActive = false
+local speedValue = 50
+local speedWarningShown = false
+local speedLoop = nil
+
+speedBox.FocusLost:Connect(function()
+	local num = tonumber(speedBox.Text)
+	if num then
+		speedValue = math.clamp(num, 16, 100)
+	end
+	speedBox.Text = tostring(speedValue)
+end)
+
+local function applySpeedhack()
+	local char = player.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if not hum then return end
+
+	if speedValue > 40 and not speedWarningShown then
+		speedWarningShown = true
+		sendNotification("Speedhack", "Speed > 40: rooms may load slowly (stucks)!", 4)
+	end
+
+	if hum.WalkSpeed ~= speedValue then
+		hum.WalkSpeed = speedValue
+	end
+end
+
+speedToggleBtn.MouseButton1Click:Connect(function()
+	speedActive = not speedActive
+
+	if speedActive then
+		speedToggleBtn.Text = "ON"
+		speedToggleBtn.BackgroundColor3 = Color3.fromRGB(58, 134, 255)
+		speedToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		sendNotification("Speedhack", "Speedhack enabled.", 2.5)
+
+		speedLoop = RunService.Heartbeat:Connect(applySpeedhack)
+	else
+		speedToggleBtn.Text = "OFF"
+		speedToggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+		speedToggleBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+		sendNotification("Speedhack", "Speedhack disabled.", 2.5)
+
+		if speedLoop then
+			speedLoop:Disconnect()
+			speedLoop = nil
+		end
+
+		local char = player.Character
+		local hum = char and char:FindFirstChildOfClass("Humanoid")
+		if hum then hum.WalkSpeed = 16 end
+	end
+end)
+
+
+-- ==========================================
+-- УПРАВЛЕНИЕ ИНТЕРФЕЙСОМ И КУРСОРОМ (RightShift Toggle)
 -- ==========================================
 toggleGUI = function()
 	isOpen = not isOpen
-	
+
 	if isOpen then
 		mainFrame.Visible = true
 		mainFrame.Size = UDim2.new(0, 720, 0, 540)
@@ -1489,7 +1668,7 @@ toggleGUI = function()
 			Size = UDim2.new(0, 780, 0, 600),
 			BackgroundTransparency = 0
 		}):Play()
-		
+
 		UserInputService.MouseBehavior = Enum.MouseBehavior.Default
 		UserInputService.MouseIconEnabled = true
 	else
@@ -1501,7 +1680,7 @@ toggleGUI = function()
 		tweenOut.Completed:Connect(function()
 			if not isOpen then mainFrame.Visible = false end
 		end)
-		
+
 		UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
 		UserInputService.MouseIconEnabled = false
 	end
